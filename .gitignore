@@ -1,0 +1,40 @@
+# Gradle
+.gradle/
+build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Packaging
+*.jar
+*.war
+*.ear
+
+# Maven/Gradle wrapper
+**/gradle/wrapper/gradle-wrapper.jar
+
+# Local config overrides
+local.properties
+
+# Run/test output
+run/
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*~

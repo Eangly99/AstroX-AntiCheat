@@ -1,0 +1,6 @@
+id: $id
+name: $name
+main: dev.naruto.astrox.AstroX
+api: $api
+version: $version
+authors: [$author]

@@ -1,0 +1,54 @@
+performance:
+  workerThreads: 6
+  maxQueuedTasks: 8192
+  pool:
+    eventObjects: 4096
+    vectors: 8192
+
+checks:
+  speed:
+    enabled: true
+    maxHorizontalBase: 0.45
+    sprintMultiplier: 1.30
+    airAccel: 0.02
+    groundAccel: 0.10
+    friction: 0.91
+    gravity: 0.08
+    drag: 0.98
+    zThreshold: 3.0
+    buffer:
+      max: 5.0
+      decay: 0.25
+      minSamples: 30
+  fly:
+    enabled: true
+    verticalTolerance: 0.06
+    zThreshold: 3.0
+    buffer:
+      max: 4.0
+      decay: 0.25
+      minSamples: 30
+  reach:
+    enabled: true
+    maxReach: 3.40
+    bedrockHitboxExtra: 0.10
+    aimDotThreshold: 0.60
+    zThreshold: 3.0
+    buffer:
+      max: 4.0
+      decay: 0.20
+      minSamples: 25
+  badPackets:
+    enabled: true
+    maxPacketsPerSecond: 120
+    sleepInteractGrace: 2
+    zThreshold: 3.0
+    buffer:
+      max: 6.0
+      decay: 0.50
+      minSamples: 10
+
+punishments:
+  maxVl: 20
+  alertLevel: 5
+  action: "notify" # notify | kick | cancel
