@@ -10,6 +10,7 @@ import dev.naruto.astrox.packet.events.SessionDownstreamPacketEvent;
 import dev.naruto.astrox.packet.events.SessionUpstreamPacketEvent;
 import dev.naruto.astrox.player.PlayerData;
 import dev.naruto.astrox.player.PlayerDataManager;
+import dev.naruto.astrox.util.DebugLogger;
 import dev.naruto.astrox.util.ObjectPool;
 import dev.naruto.astrox.util.StripedExecutor;
 import org.cloudburstmc.math.vector.Vector3f;
@@ -30,17 +31,19 @@ public final class PacketListener {
     private final PlayerDataManager players;
     private final CheckManager checks;
     private final StripedExecutor executor;
+    private final DebugLogger debug;
 
     private final ObjectPool<MovementSample> movementPool;
     private final ObjectPool<CombatSample> combatPool;
     private final ObjectPool<PacketSample> packetPool;
     private final ObjectPool<Vec3f> vecPool;
 
-    public PacketListener(AstroXConfig config, PlayerDataManager players, CheckManager checks, StripedExecutor executor) {
+    public PacketListener(AstroXConfig config, PlayerDataManager players, CheckManager checks, StripedExecutor executor, DebugLogger debug) {
         this.config = config;
         this.players = players;
         this.checks = checks;
         this.executor = executor;
+        this.debug = debug;
         this.movementPool = new ObjectPool<>(MovementSample::new, config.performance.poolEventObjects());
         this.combatPool = new ObjectPool<>(CombatSample::new, config.performance.poolEventObjects());
         this.packetPool = new ObjectPool<>(PacketSample::new, config.performance.poolEventObjects());
@@ -57,6 +60,9 @@ public final class PacketListener {
 
         int rate = data.hitPacketRate();
         if (rate > config.checks.badPackets().maxPacketsPerSecond()) {
+            if (debug.enabled()) {
+                debug.debug("Packet rate exceeded: " + rate + " pps for " + data.bedrockUsername());
+            }
             PacketSample sample = packetPool.acquire();
             sample.player = data;
             sample.packetsPerSecond = rate;
@@ -190,6 +196,9 @@ public final class PacketListener {
         if (event.packet() instanceof InventoryTransactionPacket tx
             && tx.getTransactionType() == InventoryTransactionType.ITEM_USE_ON_ENTITY) {
             if (data.sleeping()) {
+                if (debug.enabled()) {
+                    debug.debug("Interact while sleeping: " + data.bedrockUsername());
+                }
                 PacketSample sample = packetPool.acquire();
                 sample.player = data;
                 sample.packetsPerSecond = 0;

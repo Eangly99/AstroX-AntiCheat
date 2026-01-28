@@ -52,3 +52,6 @@ punishments:
   maxVl: 20
   alertLevel: 5
   action: "notify" # notify | kick | cancel
+
+debug:
+  enabled: false

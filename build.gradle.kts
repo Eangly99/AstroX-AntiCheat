@@ -32,6 +32,7 @@ dependencies {
     // Utilities
     compileOnly("it.unimi.dsi:fastutil:8.5.13")
     compileOnly("org.yaml:snakeyaml:2.2")
+    compileOnly("org.bstats:bstats-base:3.1.0")
 }
 
 // Java currently requires Java 17 or higher, so extensions should also target it
@@ -67,3 +68,4 @@ tasks {
         }
     }
 }
+
