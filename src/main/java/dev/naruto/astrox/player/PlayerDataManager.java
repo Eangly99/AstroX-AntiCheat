@@ -2,15 +2,15 @@ package dev.naruto.astrox.player;
 
 import dev.naruto.astrox.config.AstroXConfig;
 import dev.naruto.astrox.util.ZScoreBuffer;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.geysermc.geyser.api.connection.GeyserConnection;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public final class PlayerDataManager {
-    private final Object2ObjectOpenHashMap<UUID, PlayerData> players = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, PlayerData> players = new HashMap<>();
     private final AstroXConfig config;
 
     public PlayerDataManager(AstroXConfig config) {

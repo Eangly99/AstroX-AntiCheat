@@ -10,7 +10,6 @@ import dev.naruto.astrox.packet.events.SessionUpstreamPacketEvent;
 import dev.naruto.astrox.player.PlayerDataManager;
 import dev.naruto.astrox.util.DebugLogger;
 import dev.naruto.astrox.util.StripedExecutor;
-import org.bstats.MetricsBase;
 import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.geyser.api.event.bedrock.SessionDisconnectEvent;
 import org.geysermc.geyser.api.event.bedrock.SessionInitializeEvent;
@@ -20,13 +19,6 @@ import org.geysermc.geyser.api.event.lifecycle.GeyserPreReloadEvent;
 import org.geysermc.geyser.api.event.lifecycle.GeyserShutdownEvent;
 import org.geysermc.geyser.api.extension.Extension;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -43,7 +35,6 @@ public final class AstroX implements Extension {
     private ExecutorService workerPool;
     private StripedExecutor stripedExecutor;
     private DebugLogger debugLogger;
-    private MetricsBase metrics;
 
     @Subscribe
     public void onPostInitialize(GeyserPostInitializeEvent event) {
@@ -64,7 +55,6 @@ public final class AstroX implements Extension {
         this.packetInterceptor = new PacketInterceptor(this.eventBus());
 
         this.eventBus().register(packetListener);
-        startBStats();
         this.logger().info("AstroX AntiCheat initialized.");
     }
 
@@ -100,13 +90,11 @@ public final class AstroX implements Extension {
         if (debugLogger != null) {
             debugLogger.enabled(config.debug.enabled());
         }
-        reconfigureBStats();
         this.logger().info("AstroX AntiCheat config reloaded.");
     }
 
     @Subscribe
     public void onShutdown(GeyserShutdownEvent event) {
-        shutdownMetrics();
         if (workerPool != null) {
             workerPool.shutdown();
         }
@@ -135,83 +123,4 @@ public final class AstroX implements Extension {
         );
     }
 
-    private void startBStats() {
-        if (config == null || !config.bstats.enabled()) {
-            return;
-        }
-        int serviceId = config.bstats.serviceId();
-        if (serviceId <= 0) {
-            this.logger().warning("bStats is enabled but bstats.serviceId is not set.");
-            return;
-        }
-        String serverUuid = loadOrCreateServerUuid();
-        metrics = new MetricsBase(
-            "geyser",
-            serverUuid,
-            serviceId,
-            true,
-            builder -> {
-            },
-            builder -> {
-            },
-            task -> {
-                if (workerPool != null) {
-                    workerPool.execute(task);
-                } else {
-                    task.run();
-                }
-            },
-            () -> config.bstats.enabled(),
-            (message, error) -> this.logger().error(message, error),
-            message -> this.logger().info(message),
-            config.bstats.logErrors(),
-            config.bstats.logSentData(),
-            config.bstats.logResponseStatus(),
-            true
-        );
-    }
-
-    private void reconfigureBStats() {
-        shutdownMetrics();
-        startBStats();
-    }
-
-    private void shutdownMetrics() {
-        if (metrics != null) {
-            metrics.shutdown();
-            metrics = null;
-        }
-    }
-
-    private String loadOrCreateServerUuid() {
-        Path dataFolder = this.dataFolder();
-        Path file = dataFolder.resolve("bstats.properties");
-        Properties properties = new Properties();
-
-        try {
-            Files.createDirectories(dataFolder);
-        } catch (IOException ex) {
-            this.logger().error("Failed to create data folder for bStats", ex);
-        }
-
-        if (Files.exists(file)) {
-            try (InputStream in = Files.newInputStream(file)) {
-                properties.load(in);
-            } catch (IOException ex) {
-                this.logger().error("Failed to read bstats.properties", ex);
-            }
-        }
-
-        String serverUuid = properties.getProperty("serverUuid");
-        if (serverUuid == null || serverUuid.isBlank()) {
-            serverUuid = UUID.randomUUID().toString();
-            properties.setProperty("serverUuid", serverUuid);
-            try (OutputStream out = Files.newOutputStream(file)) {
-                properties.store(out, "bStats server UUID");
-            } catch (IOException ex) {
-                this.logger().error("Failed to write bstats.properties", ex);
-            }
-        }
-        return serverUuid;
-    }
 }

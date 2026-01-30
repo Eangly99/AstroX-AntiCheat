@@ -7,14 +7,12 @@ public final class AstroXConfig {
     public final Checks checks;
     public final Punishments punishments;
     public final Debug debug;
-    public final BStats bstats;
 
-    public AstroXConfig(Performance performance, Checks checks, Punishments punishments, Debug debug, BStats bstats) {
+    public AstroXConfig(Performance performance, Checks checks, Punishments punishments, Debug debug) {
         this.performance = performance;
         this.checks = checks;
         this.punishments = punishments;
         this.debug = debug;
-        this.bstats = bstats;
     }
 
     public static AstroXConfig defaults() {
@@ -27,8 +25,7 @@ public final class AstroXConfig {
                 new BadPackets(true, 120, 2, 3.0, new Buffer(6.0, 0.50, 10))
             ),
             new Punishments(20, 5, "notify"),
-            new Debug(false),
-            new BStats(true, 0, false, false, false)
+            new Debug(false)
         );
     }
 
@@ -96,16 +93,7 @@ public final class AstroXConfig {
         Map<String, Object> debugSection = section(root, "debug");
         Debug debug = new Debug(boolVal(debugSection, "enabled", false));
 
-        Map<String, Object> bstatsSection = section(root, "bstats");
-        BStats bstats = new BStats(
-            boolVal(bstatsSection, "enabled", true),
-            intVal(bstatsSection, "serviceId", 29113),
-            boolVal(bstatsSection, "logErrors", false),
-            boolVal(bstatsSection, "logSentData", false),
-            boolVal(bstatsSection, "logResponseStatus", false)
-        );
-
-        return new AstroXConfig(performance, checks, punishments, debug, bstats);
+        return new AstroXConfig(performance, checks, punishments, debug);
     }
 
     private static Map<String, Object> section(Map<String, Object> root, String key) {
@@ -190,5 +178,4 @@ public final class AstroXConfig {
 
     public record Debug(boolean enabled) {}
 
-    public record BStats(boolean enabled, int serviceId, boolean logErrors, boolean logSentData, boolean logResponseStatus) {}
 }

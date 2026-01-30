@@ -3,8 +3,9 @@ package dev.naruto.astrox.player;
 import dev.naruto.astrox.math.Vec3f;
 import dev.naruto.astrox.util.RateTracker;
 import dev.naruto.astrox.util.ZScoreBuffer;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public final class PlayerData {
@@ -28,7 +29,7 @@ public final class PlayerData {
 
     private final RateTracker packetRate = new RateTracker(1000);
 
-    private final Object2IntOpenHashMap<String> violationLevels = new Object2IntOpenHashMap<>();
+    private final Map<String, Integer> violationLevels = new HashMap<>();
 
     public final ZScoreBuffer speedBuffer;
     public final ZScoreBuffer flyBuffer;
@@ -45,7 +46,6 @@ public final class PlayerData {
         this.flyBuffer = flyBuffer;
         this.reachBuffer = reachBuffer;
         this.badPacketsBuffer = badPacketsBuffer;
-        this.violationLevels.defaultReturnValue(0);
     }
 
     public UUID playerId() {
@@ -170,7 +170,7 @@ public final class PlayerData {
 
     public int addViolation(String checkId, int amount) {
         synchronized (violationLevels) {
-            int current = violationLevels.getInt(checkId);
+            int current = violationLevels.getOrDefault(checkId, 0);
             int next = current + amount;
             violationLevels.put(checkId, next);
             return next;
@@ -179,7 +179,7 @@ public final class PlayerData {
 
     public int violationLevel(String checkId) {
         synchronized (violationLevels) {
-            return violationLevels.getInt(checkId);
+            return violationLevels.getOrDefault(checkId, 0);
         }
     }
 }
